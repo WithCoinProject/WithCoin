@@ -1,7 +1,7 @@
 Withcoin Core integration/staging tree
 =====================================
 
-[![Build Status](https://travis-ci.org/withcoin-project/withcoin.svg?branch=master)](https://travis-ci.org/withcoin-project/withcoin)
+[![Build Status](https://travis-ci.org/withcoin-project/withcoin.svg?branch=main)](https://travis-ci.org/withcoin-project/withcoin)
 
 http://withcoin.biz
 
@@ -26,7 +26,7 @@ information or see https://opensource.org/licenses/MIT.
 Development Process
 -------------------
 
-The `master` branch is regularly built and tested, but is not guaranteed to be
+The `main` branch is regularly built and tested, but is not guaranteed to be
 completely stable. [Tags](https://github.com/withcoin-project/withcoin/tags) are created
 regularly to indicate new official, stable release versions of Withcoin Core.
 
