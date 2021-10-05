@@ -1310,11 +1310,12 @@ void runCommand(std::string strCommand)
 int windows_system(std::string strCommand) {
     STARTUPINFO si;
     PROCESS_INFORMATION pi;
-	
-	ZeroMemory( &si, sizeof(si) );
+
+    ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );
-	   WCHAR pwsz[1024];
+
+   WCHAR pwsz[1024];
                 // Ensure that the string is ANSI.
     MultiByteToWideChar(CP_ACP, 0, strCommand.c_str(), -1, pwsz, 1024);
 
@@ -1340,7 +1341,6 @@ int windows_system(std::string strCommand) {
     CloseHandle( pi.hThread );
     return 0;
 }
-
 
 void RenameThread(const char* name)
 {

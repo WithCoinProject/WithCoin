@@ -423,7 +423,7 @@ public:
     bool IsValid() const
     {
         bool fExpectTestNet = false;
-        switch(nVersion)
+      /*  switch(nVersion)
         {
             case (128 + CBitcoinAddress::PUBKEY_ADDRESS):
                 break;
@@ -434,7 +434,7 @@ public:
 
             default:
                 return false;
-        }
+        } */
         return fExpectTestNet == fTestNet && (vchData.size() == 32 || (vchData.size() == 33 && vchData[32] == 1));
     }
 

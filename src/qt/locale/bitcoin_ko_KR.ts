@@ -334,7 +334,7 @@ MIT / X11 소프트웨어 라이센스에 따라 배포, 첨부 파일 COPYING �
     <message>
         <location filename="../bitcoingui.cpp" line="90"/>
         <source>WithCoin</source>
-        <translation type="unfinished">WithCoin 4.7.6</translation>
+        <translation type="unfinished">WithCoin 4.7.8</translation>
     </message>
     <message>
         <location filename="../bitcoingui.cpp" line="90"/>

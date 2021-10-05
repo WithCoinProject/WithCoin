@@ -979,13 +979,14 @@ int64_t GetProofOfWorkReward(int64_t nFees)
 {
     int64_t nSubsidy = 0 * COIN;
 	int64_t nNow = GetAdjustedTime(); // Huns 2019.03.21 - about MBC Get current time funtion.
+	//int64_t nNow = GetBlockTime();  // Huns 2019.11.13 - about MBC Get current time funtion.
     
     if (pindexBest->nHeight+1 == 1)
     {
       nSubsidy = 188800000 * COIN;
       return nSubsidy + nFees;
     }
-   else if ( nNow <= LAST_POW_BLOCK)  // Huns 2019.03.21 - when now time < POW last time is  30coin reward.
+   else if ( pindexBest->GetBlockTime() <= LAST_POW_BLOCK)  // Huns 2019.03.21 - when now time < POW last time is  30coin reward.
     {
       nSubsidy = 30 * COIN;
       return nSubsidy + nFees;
@@ -1268,15 +1269,15 @@ void static InvalidChainFound(CBlockIndex* pindexNew)
     uint256 nBestInvalidBlockTrust = pindexNew->nChainTrust - pindexNew->pprev->nChainTrust;
     uint256 nBestBlockTrust = pindexBest->nHeight != 0 ? (pindexBest->nChainTrust - pindexBest->pprev->nChainTrust) : pindexBest->nChainTrust;
 
-   // printf("InvalidChainFound: invalid block=%s  height=%d  trust=%s  blocktrust=%"PRId64"  date=%s\n",
-   //   pindexNew->GetBlockHash().ToString().substr(0,20).c_str(), pindexNew->nHeight,
-   //   CBigNum(pindexNew->nChainTrust).ToString().c_str(), nBestInvalidBlockTrust.Get64(),
-   //   DateTimeStrFormat("%x %H:%M:%S", pindexNew->GetBlockTime()).c_str());
-   // printf("InvalidChainFound:  current best=%s  height=%d  trust=%s  blocktrust=%"PRId64"  date=%s\n",
-   //   hashBestChain.ToString().substr(0,20).c_str(), nBestHeight,
-   //   CBigNum(pindexBest->nChainTrust).ToString().c_str(),
-   //   nBestBlockTrust.Get64(),
-   //   DateTimeStrFormat("%x %H:%M:%S", pindexBest->GetBlockTime()).c_str());
+    printf("InvalidChainFound: invalid block=%s  height=%d  trust=%s  blocktrust=%"PRId64"  date=%s\n",
+      pindexNew->GetBlockHash().ToString().substr(0,20).c_str(), pindexNew->nHeight,
+      CBigNum(pindexNew->nChainTrust).ToString().c_str(), nBestInvalidBlockTrust.Get64(),
+      DateTimeStrFormat("%x %H:%M:%S", pindexNew->GetBlockTime()).c_str());
+    printf("InvalidChainFound:  current best=%s  height=%d  trust=%s  blocktrust=%"PRId64"  date=%s\n",
+      hashBestChain.ToString().substr(0,20).c_str(), nBestHeight,
+      CBigNum(pindexBest->nChainTrust).ToString().c_str(),
+      nBestBlockTrust.Get64(),
+      DateTimeStrFormat("%x %H:%M:%S", pindexBest->GetBlockTime()).c_str());
 }
 
 
@@ -2372,6 +2373,7 @@ bool CBlock::AcceptBlock()
     // Check for duplicate
     uint256 hash = GetHash();
 	int64_t nNow = GetAdjustedTime();  // Huns 2019.03.21 - about MBC Get current time funtion.
+	//int64_t nNow = GetBlockTime();  // Huns 2019.11.13 - about MBC Get current time funtion.
     if (mapBlockIndex.count(hash))
         return error("AcceptBlock() : block already in mapBlockIndex");
 
@@ -2382,7 +2384,7 @@ bool CBlock::AcceptBlock()
     CBlockIndex* pindexPrev = (*mi).second;
     int nHeight = pindexPrev->nHeight+1;
 		
-    if (IsProofOfWork() && nNow > LAST_POW_BLOCK)  // Huns 2019.03.21 - when now time > POW last time  is reject POW
+    if (IsProofOfWork() &&  GetBlockTime() > LAST_POW_BLOCK )  // Huns 2019.03.21 - when now time > POW last time  is reject POW
         return DoS(100, error("AcceptBlock() : reject proof-of-work at nTime %d", nNow));
 
     if (IsProofOfStake() && nHeight < MODIFIER_INTERVAL_SWITCH)
@@ -3429,7 +3431,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
     static map<CService, CPubKey> mapReuseKey;
     RandAddSeedPerfmon();
     //if (fDebug)
-    //printf("received: %s (%"PRIszu" bytes)\n", strCommand.c_str(), vRecv.size());
+    printf("received: %s (%"PRIszu" bytes)\n", strCommand.c_str(), vRecv.size());
     
 	if (mapArgs.count("-dropmessagestest") && GetRand(atoi(mapArgs["-dropmessagestest"])) == 0)
     {
@@ -3562,7 +3564,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
 
         pfrom->fSuccessfullyConnected = true;
 
-        //printf("receive version message: partner %s,  version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str(), pfrom->addr.ToString().c_str());
+        printf("receive version message: partner %s,  version %d, blocks=%d, us=%s, them=%s, peer=%s\n", pfrom->addr.ToString().c_str(), pfrom->nVersion, pfrom->nStartingHeight, addrMe.ToString().c_str(), addrFrom.ToString().c_str(), pfrom->addr.ToString().c_str());
 
         cPeerBlockCounts.input(pfrom->nStartingHeight);
 
@@ -3745,7 +3747,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         if (pindex)
             pindex = pindex->pnext;
         int nLimit = 1500;
-        //printf("getblocks partner %s, getblocks %d to %s limit %d\n", pfrom->addr.ToString().c_str(), (pindex ? pindex->nHeight : -1), hashStop.ToString().substr(0,20).c_str(), nLimit);
+        printf("getblocks partner %s, getblocks %d to %s limit %d\n", pfrom->addr.ToString().c_str(), (pindex ? pindex->nHeight : -1), hashStop.ToString().substr(0,20).c_str(), nLimit);
         for (; pindex; pindex = pindex->pnext)
         {
             if (pindex->GetBlockHash() == hashStop)
@@ -3899,7 +3901,7 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv)
         vRecv >> block;
         uint256 hashBlock = block.GetHash();
 
-        //printf(" partner %s, received block %s\n", pfrom->addr.ToString().c_str(), hashBlock.ToString().substr(0,20).c_str());
+        printf(" partner %s, received block %s\n", pfrom->addr.ToString().c_str(), hashBlock.ToString().substr(0,20).c_str());
          block.print();
 
         CInv inv(MSG_BLOCK, hashBlock);
@@ -4343,7 +4345,7 @@ bool SendMessages(CNode* pto, bool fSendTrickle)
             const CInv& inv = (*pto->mapAskFor.begin()).second;
             if (!AlreadyHave(txdb, inv))
             {
-               if (fDebugNet)
+               // if (fDebugNet)
                 printf("sending getdata: %s\n", inv.ToString().c_str());
                 
 				vGetData.push_back(inv);
